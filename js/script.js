@@ -1,47 +1,52 @@
 const rows = 24
 const columns = 40
-
-const map = new Array(rows)
-for (let i = 0; i < map.length; i++) {
-  map[i] = new Array(columns).fill(0)
-}
-
+const tileSize = 25
 const field = document.querySelector('.field')
+let map = []
+
+function createDiv(classNames, top, left) {
+  const div = document.createElement('div')
+  classNames.forEach((className) => {
+    div.classList.add(className)
+  })
+  div.style.top = top * tileSize + 'px'
+  div.style.left = left * tileSize + 'px'
+  field.appendChild(div)
+  return div
+}
 
 function drawMap() {
-  for (let i = 0; i < map.length; i++) {
-    for (let j = 0; j < map[i].length; j++) {
-      const tile = document.createElement('div')
-      tile.classList.add('field')
-      tile.classList.add('tile')
-      if (map[i][j] === 0) {
-        tile.classList.add('tileW')
-      }
-      tile.style.top = i * 25 + 'px'
-      tile.style.left = j * 25 + 'px'
-
-      field.appendChild(tile)
+  map = new Array(rows)
+  for (let i = 0; i < rows; i++) {
+    map[i] = new Array(columns)
+    for (let j = 0; j < columns; j++) {
+      const div = createDiv(['field', 'tile', 'tileW'], i, j)
+      map[i][j] = div
     }
   }
 }
 
-function drowRoom() {
-  let RoomQuantity = Math.floor(Math.random() * (12 - 5) + 5)
+function drawRoom() {
+  const roomQuantity = Math.floor(Math.random() * (10 - 5 + 1) + 5)
 
-  for (let i = 0; i < RoomQuantity; i++) {
-    let RoomRow = Math.floor(Math.random() * (9 - 3) + 3)
-    let RoomCol = Math.floor(Math.random() * (9 - 3) + 3)
+  for (let i = 0; i < roomQuantity; i++) {
+    const roomRow = Math.floor(Math.random() * (8 - 3 + 1) + 3)
+    const roomCol = Math.floor(Math.random() * (8 - 3 + 1) + 3)
 
-    let startRow = Math.floor(Math.random() * (rows - RoomRow))
-    let startCol = Math.floor(Math.random() * (columns - RoomCol))
+    const startRow = Math.floor(Math.random() * (rows - roomRow + 1))
+    const startCol = Math.floor(Math.random() * (columns - roomCol + 1))
 
-    for (let k = startRow; k < startRow + RoomRow; k++) {
-      for (let j = startCol; j < startCol + RoomCol; j++) {
-        map[k][j] = 1
+    for (let k = startRow; k < startRow + roomRow; k++) {
+      for (let j = startCol; j < startCol + roomCol; j++) {
+        let div = createDiv(['field', 'tile'], k, j)
+        map[k][j] = div
       }
     }
   }
 }
+
+drawMap()
+drawRoom()
 
 function drowRoad() {
   function RoadRow() {
@@ -49,16 +54,18 @@ function drowRoad() {
     for (let i = 0; i < RoadQuantity; i++) {
       let startRow = Math.floor(Math.random() * rows)
       for (let k = 0; k < columns; k++) {
-        map[startRow][k] = 1
+        let div = createDiv(['field', 'tile'], startRow, k)
+        map[startRow][k] = div
       }
     }
   }
   function RoadCol() {
-    let RoadQuantity = Math.floor(Math.random() * (6 - 3) + 3)
+    let RoadQuantity = Math.floor(Math.random() * (6 - 3 + 1) + 3)
     for (let i = 0; i < RoadQuantity; i++) {
       let startCol = Math.floor(Math.random() * columns)
       for (let k = 0; k < rows; k++) {
-        map[k][startCol] = 1
+        let div = createDiv(['field', 'tile'], k, startCol)
+        map[k][startCol] = div
       }
     }
   }
@@ -71,12 +78,9 @@ function drowItems() {
     if (count > 0) {
       let y = Math.floor(Math.random() * columns)
       let x = Math.floor(Math.random() * rows)
-      if (map[x][y] === 1) {
-        const tileSW = document.createElement('div')
-        tileSW.classList.add('field', 'tile', 'tileSW')
-        tileSW.style.top = x * 25 + 'px'
-        tileSW.style.left = y * 25 + 'px'
-        field.appendChild(tileSW)
+      if (map[x][y].classList.value === 'field tile') {
+        let div = createDiv(['field', 'tile', 'tileSW'], x, y)
+        map[x][y] = div
         count -= 1
         drowTileSW(count)
       } else drowTileSW(count)
@@ -86,12 +90,9 @@ function drowItems() {
     if (count > 0) {
       let y = Math.floor(Math.random() * columns)
       let x = Math.floor(Math.random() * rows)
-      if (map[x][y] === 1) {
-        const tileHP = document.createElement('div')
-        tileHP.classList.add('field', 'tile', 'tileHP')
-        tileHP.style.top = x * 25 + 'px'
-        tileHP.style.left = y * 25 + 'px'
-        field.appendChild(tileHP)
+      if (map[x][y].classList.value === 'field tile') {
+        let div = createDiv(['field', 'tile', 'tileHP'], x, y)
+        map[x][y] = div
         count -= 1
         drowTileHP(count)
       } else drowTileHP(count)
@@ -100,56 +101,104 @@ function drowItems() {
   drowTileHP(10)
   drowTileSW(2)
 }
-
-function drowPerson(Px, Py) {
-  console.log(Px, Py)
-  if (map[Px][Py] === 1) {
-    const tileP = document.createElement('div')
-    tileP.classList.add('field', 'tile', 'tileP')
-    tileP.style.top = Px * 25 + 'px'
-    tileP.style.left = Py * 25 + 'px'
-    field.appendChild(tileP)
-    return Px, Py
-  } else {
-    Py = Math.floor(Math.random() * columns)
-    Px = Math.floor(Math.random() * rows)
-    drowPerson(Px, Py)
-  }
-}
-
 function drowWarior(count) {
   if (count > 0) {
     let y = Math.floor(Math.random() * columns)
     let x = Math.floor(Math.random() * rows)
-    if (map[x][y] === 1) {
-      const tileE = document.createElement('div')
-      tileE.classList.add('field', 'tile', 'tileE')
-      tileE.style.top = x * 25 + 'px'
-      tileE.style.left = y * 25 + 'px'
-      field.appendChild(tileE)
+    if (map[x][y].classList.value === 'field tile') {
+      let div = createDiv(['field', 'tile', 'tileE'], x, y)
+      map[x][y] = div
       count -= 1
       drowWarior(count)
     } else drowWarior(count)
   }
 }
 
+let Py, Px
+
+function drawPerson() {
+  Py = getRandomPosition(columns);
+  Px = getRandomPosition(rows);
+
+  while (!isFieldTile(Px, Py)) {
+    Py = getRandomPosition(columns);
+    Px = getRandomPosition(rows);
+  }
+
+  const div = createDiv(['field', 'tile', 'tileP'], Px, Py);
+  map[Px][Py] = div;
+  console.log(Px, Py);
+}
+
+document.addEventListener('keydown', function (event) {
+  const keyActions = {}
+
+  ;['W', 'Ц', 'w', 'ц'].forEach((key) => {
+    keyActions[key] = moveUp
+  })
+  ;['S', 's', 'Ы', 'ы'].forEach((key) => {
+    keyActions[key] = moveDown
+  })
+  ;['A', 'a', 'Ф', 'ф'].forEach((key) => {
+    keyActions[key] = moveRight
+  })
+  ;['D', 'd', 'В', 'в'].forEach((key) => {
+    keyActions[key] = moveLeft
+  })
+
+  const action = keyActions[event.key]
+  if (action) {
+    action()
+  }
+})
+function moveUp() {
+  if (isFieldTile(Px - 1, Py)) {
+    movePerson(Px - 1, Py);
+  }
+}
+
+function moveDown() {
+  if (isFieldTile(Px + 1, Py)) {
+    movePerson(Px + 1, Py);
+  }
+}
+
+function moveLeft() {
+  if (isFieldTile(Px, Py + 1)) {
+    movePerson(Px, Py + 1);
+  }
+}
+
+function moveRight() {
+  if (isFieldTile(Px, Py - 1)) {
+    movePerson(Px, Py - 1);
+  }
+}
+
+function getRandomPosition(limit) {
+  return Math.floor(Math.random() * limit);
+}
+
+function isFieldTile(x, y) {
+  return map[x][y].classList.value === 'field tile';
+}
+
+function movePerson(newPx, newPy) {
+  const person = document.querySelector('.tileP');
+  person.classList.remove('tileP');
+
+  Px = newPx;
+  Py = newPy;
+
+  const div = createDiv(['field', 'tile', 'tileP'], Px, Py);
+  map[Px][Py] = div;
+}
+
+drawPerson()
+
 drowRoad()
-drowRoom()
+
 drowItems()
 
 drowWarior(10)
-
-drawMap()
-
-document.addEventListener('keydown', function (event) {
-  switch (event.key) {
-    case 'w' || 'W':
-      console.log(Px - 1, Py)
-
-    case 'value2': // if (x === 'value2')
-  }
-})
-let Py = Math.floor(Math.random() * columns)
-let Px = Math.floor(Math.random() * rows)
-drowPerson(Px, Py)
 // console.log(map)
