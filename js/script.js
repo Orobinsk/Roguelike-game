@@ -117,17 +117,17 @@ function drowWarior(count) {
 let Py, Px
 
 function drawPerson() {
-  Py = getRandomPosition(columns);
-  Px = getRandomPosition(rows);
+  Py = getRandomPosition(columns)
+  Px = getRandomPosition(rows)
 
   while (!isFieldTile(Px, Py)) {
-    Py = getRandomPosition(columns);
-    Px = getRandomPosition(rows);
+    Py = getRandomPosition(columns)
+    Px = getRandomPosition(rows)
   }
 
-  const div = createDiv(['field', 'tile', 'tileP'], Px, Py);
-  map[Px][Py] = div;
-  console.log(Px, Py);
+  const div = createDiv(['field', 'tile', 'tileP'], Px, Py)
+  map[Px][Py] = div
+  console.log(Px, Py)
 }
 
 document.addEventListener('keydown', function (event) {
@@ -145,53 +145,73 @@ document.addEventListener('keydown', function (event) {
   ;['D', 'd', 'В', 'в'].forEach((key) => {
     keyActions[key] = moveLeft
   })
+  keyActions[' '] = attack
 
   const action = keyActions[event.key]
   if (action) {
-    action()
+    action(Py, Px)
   }
 })
+
+const directions = [
+  { dx: -1, dy: 0 },
+  { dx: 0, dy: -1 },
+  { dx: 0, dy: 1 },
+  { dx: 1, dy: 0 },
+]
+function attack(x, y) {
+  for (const direction of directions) {
+    console.log(x, y, directions)
+    const tile = map[y + direction.dx][x + direction.dy]
+    if (tile.classList.contains('tileE')) {
+      tile.classList.remove('tileE')
+      console.log('test2', tile)
+      break
+    }
+  }
+}
+
 function moveUp() {
   if (isFieldTile(Px - 1, Py)) {
-    movePerson(Px - 1, Py);
+    movePerson(Px - 1, Py)
   }
 }
 
 function moveDown() {
   if (isFieldTile(Px + 1, Py)) {
-    movePerson(Px + 1, Py);
+    movePerson(Px + 1, Py)
   }
 }
 
 function moveLeft() {
   if (isFieldTile(Px, Py + 1)) {
-    movePerson(Px, Py + 1);
+    movePerson(Px, Py + 1)
   }
 }
 
 function moveRight() {
   if (isFieldTile(Px, Py - 1)) {
-    movePerson(Px, Py - 1);
+    movePerson(Px, Py - 1)
   }
 }
 
 function getRandomPosition(limit) {
-  return Math.floor(Math.random() * limit);
+  return Math.floor(Math.random() * limit)
 }
 
 function isFieldTile(x, y) {
-  return map[x][y].classList.value === 'field tile';
+  return map[x][y].classList.value === 'field tile'
 }
 
 function movePerson(newPx, newPy) {
-  const person = document.querySelector('.tileP');
-  person.classList.remove('tileP');
+  const person = document.querySelector('.tileP')
+  person.classList.remove('tileP')
 
-  Px = newPx;
-  Py = newPy;
+  Px = newPx
+  Py = newPy
 
-  const div = createDiv(['field', 'tile', 'tileP'], Px, Py);
-  map[Px][Py] = div;
+  const div = createDiv(['field', 'tile', 'tileP'], Px, Py)
+  map[Px][Py] = div
 }
 
 drawPerson()
