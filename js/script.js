@@ -1,7 +1,20 @@
 const rows = 24
 const columns = 40
 const tileSize = 25
+const tileSize = 25
 const field = document.querySelector('.field')
+let map = []
+
+function createDiv(classNames, top, left) {
+  const div = document.createElement('div')
+  classNames.forEach((className) => {
+    div.classList.add(className)
+  })
+  div.style.top = top * tileSize + 'px'
+  div.style.left = left * tileSize + 'px'
+  field.appendChild(div)
+  return div
+}
 let map = []
 
 function createDiv(classNames, top, left) {
@@ -22,20 +35,37 @@ function drawMap() {
     for (let j = 0; j < columns; j++) {
       const div = createDiv(['field', 'tile', 'tileW'], i, j)
       map[i][j] = div
+  map = new Array(rows)
+  for (let i = 0; i < rows; i++) {
+    map[i] = new Array(columns)
+    for (let j = 0; j < columns; j++) {
+      const div = createDiv(['field', 'tile', 'tileW'], i, j)
+      map[i][j] = div
     }
   }
 }
 
 function drawRoom() {
   const roomQuantity = Math.floor(Math.random() * (10 - 5 + 1) + 5)
+function drawRoom() {
+  const roomQuantity = Math.floor(Math.random() * (10 - 5 + 1) + 5)
 
+  for (let i = 0; i < roomQuantity; i++) {
+    const roomRow = Math.floor(Math.random() * (8 - 3 + 1) + 3)
+    const roomCol = Math.floor(Math.random() * (8 - 3 + 1) + 3)
   for (let i = 0; i < roomQuantity; i++) {
     const roomRow = Math.floor(Math.random() * (8 - 3 + 1) + 3)
     const roomCol = Math.floor(Math.random() * (8 - 3 + 1) + 3)
 
     const startRow = Math.floor(Math.random() * (rows - roomRow + 1))
     const startCol = Math.floor(Math.random() * (columns - roomCol + 1))
+    const startRow = Math.floor(Math.random() * (rows - roomRow + 1))
+    const startCol = Math.floor(Math.random() * (columns - roomCol + 1))
 
+    for (let k = startRow; k < startRow + roomRow; k++) {
+      for (let j = startCol; j < startCol + roomCol; j++) {
+        let div = createDiv(['field', 'tile'], k, j)
+        map[k][j] = div
     for (let k = startRow; k < startRow + roomRow; k++) {
       for (let j = startCol; j < startCol + roomCol; j++) {
         let div = createDiv(['field', 'tile'], k, j)
@@ -48,6 +78,9 @@ function drawRoom() {
 drawMap()
 drawRoom()
 
+drawMap()
+drawRoom()
+
 function drowRoad() {
   function RoadRow() {
     let RoadQuantity = Math.floor(Math.random() * (6 - 3) + 3)
@@ -56,14 +89,19 @@ function drowRoad() {
       for (let k = 0; k < columns; k++) {
         let div = createDiv(['field', 'tile'], startRow, k)
         map[startRow][k] = div
+        let div = createDiv(['field', 'tile'], startRow, k)
+        map[startRow][k] = div
       }
     }
   }
   function RoadCol() {
     let RoadQuantity = Math.floor(Math.random() * (6 - 3 + 1) + 3)
+    let RoadQuantity = Math.floor(Math.random() * (6 - 3 + 1) + 3)
     for (let i = 0; i < RoadQuantity; i++) {
       let startCol = Math.floor(Math.random() * columns)
       for (let k = 0; k < rows; k++) {
+        let div = createDiv(['field', 'tile'], k, startCol)
+        map[k][startCol] = div
         let div = createDiv(['field', 'tile'], k, startCol)
         map[k][startCol] = div
       }
@@ -81,6 +119,9 @@ function drowItems() {
       if (map[x][y].classList.value === 'field tile') {
         let div = createDiv(['field', 'tile', 'tileSW'], x, y)
         map[x][y] = div
+      if (map[x][y].classList.value === 'field tile') {
+        let div = createDiv(['field', 'tile', 'tileSW'], x, y)
+        map[x][y] = div
         count -= 1
         drowTileSW(count)
       } else drowTileSW(count)
@@ -90,6 +131,9 @@ function drowItems() {
     if (count > 0) {
       let y = Math.floor(Math.random() * columns)
       let x = Math.floor(Math.random() * rows)
+      if (map[x][y].classList.value === 'field tile') {
+        let div = createDiv(['field', 'tile', 'tileHP'], x, y)
+        map[x][y] = div
       if (map[x][y].classList.value === 'field tile') {
         let div = createDiv(['field', 'tile', 'tileHP'], x, y)
         map[x][y] = div
@@ -105,6 +149,9 @@ function drowWarior(count) {
   if (count > 0) {
     let y = Math.floor(Math.random() * columns)
     let x = Math.floor(Math.random() * rows)
+    if (map[x][y].classList.value === 'field tile') {
+      let div = createDiv(['field', 'tile', 'tileE'], x, y)
+      map[x][y] = div
     if (map[x][y].classList.value === 'field tile') {
       let div = createDiv(['field', 'tile', 'tileE'], x, y)
       map[x][y] = div
@@ -217,6 +264,7 @@ function movePerson(newPx, newPy) {
 drawPerson()
 
 drowRoad()
+
 
 drowItems()
 
