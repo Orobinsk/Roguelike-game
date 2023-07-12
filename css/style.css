@@ -21,8 +21,8 @@ h1 {
 }
 .field {
   position: relative;
-  width: 1024px;
-  height: 640px;
+  width: 1000px;
+  height: 600px;
   /* overflow: hidden; */
 }
 .field .tile {

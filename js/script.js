@@ -1,78 +1,153 @@
+const field = document.querySelector('.field')
+
 const rows = 24
 const columns = 40
 const tileSize = 25
-let attackPower = 25
-const field = document.querySelector('.field')
-let map = []
-let y = Random(columns)
-let x = Random(rows)
+const roomQuantity = random(5, 10)
+
+let x, y
+
+let map
+const objects = {
+  wall: { type: 'wall', class: 'tile tileW', x: 0, y: 0 },
+  floor: {
+    type: 'floor',
+    class: 'tile',
+    item: '',
+    enemies: '',
+    player: '',
+    x: 0,
+    y: 0,
+  },
+}
+const enemies = {
+  player: {
+    type: 'player',
+    class: 'tileP',
+    x: 0,
+    y: 0,
+    health: 100,
+    attackPower: 25,
+  },
+  warriors: {
+    type: 'enemies',
+    class: 'tileE',
+    x: 0,
+    y: 0,
+    health: 100,
+    attackPower: 25,
+  },
+}
+const items = {
+  sword: { type: 'sword', class: 'tileSW' },
+  HP: { type: 'HP', class: 'tileHP' },
+}
+
+// helpers
 const directions = [
   { dx: -1, dy: 0 },
   { dx: 0, dy: -1 },
   { dx: 0, dy: 1 },
-  { dx: +1, dy: 0 },
+  { dx: 1, dy: 0 },
 ]
 
-function createDiv(classNames, top, left, health) {
-  const div = document.createElement('div')
-  div.classList.add(...classNames)
-  div.style.top = top * tileSize + 'px'
-  div.style.left = left * tileSize + 'px'
-  if (health) {
-    div.style.width = health + '%'
+function random(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min)
+}
+
+function updateMapElem(x, y, elem) {
+  map[x][y] = { ...elem }
+  map[x][y].x = x * tileSize
+  map[x][y].y = y * tileSize
+}
+
+function updateDiv(div, elem) {
+  div.innerHTML = ''
+  div.className = elem.class
+  if (elem.enemies) {
+    div.classList.add(elem.enemies.class)
+    let healthElem = document.createElement('div')
+    healthElem.style.width = elem.enemies.health + '%'
+    div.appendChild(healthElem)
+    healthElem.classList.add('health')
+  } else if (elem.item) {
+    div.classList.add(elem.item.class)
   }
-  field.appendChild(div)
-  return div
+}
+
+function updateMap(newElem, oldElem) {
+  let newId = `${newElem.x}${newElem.y}`
+  let oldId = `${oldElem.x}${oldElem.y}`
+  let newTile = document.getElementById(newId)
+  let oldTile = document.getElementById(oldId)
+  updateDiv(newTile, newElem)
+  updateDiv(oldTile, oldElem)
 }
 
 function drawMap() {
+  for (let i = 0; i < rows; i++) {
+    map[i].forEach((e) => {
+      let elem = document.createElement('div')
+      elem.className = e.class
+      elem.style.top = e.x + 'px'
+      elem.style.left = e.y + 'px'
+      elem.id = `${e.x}${e.y}`
+      if (e.item) {
+        elem.classList.add(e.item.class)
+      }
+      if (e.enemies) {
+        elem.classList.add(e.enemies.class)
+        let healthElem = document.createElement('div')
+        healthElem.style.width = e.enemies.health + '%'
+        elem.appendChild(healthElem)
+        healthElem.classList.add('health')
+      }
+      field.appendChild(elem)
+    })
+  }
+}
+
+function createMap() {
   map = new Array(rows)
   for (let i = 0; i < rows; i++) {
     map[i] = new Array(columns)
     for (let j = 0; j < columns; j++) {
-      const div = createDiv(['field', 'tile', 'tileW'], i, j)
-      map[i][j] = div
+      updateMapElem(i, j, objects.wall)
     }
   }
 }
 
-function drawRoom() {
-  const roomQuantity = Math.floor(Math.random() * (10 - 5 + 1) + 5)
-
+function createRoom() {
   for (let i = 0; i < roomQuantity; i++) {
-    const roomRow = Math.floor(Math.random() * (8 - 3 + 1) + 3)
-    const roomCol = Math.floor(Math.random() * (8 - 3 + 1) + 3)
-
+    const roomRow = random(3, 8)
+    const roomCol = random(3, 8)
     const startRow = Math.floor(Math.random() * (rows - roomRow + 1))
     const startCol = Math.floor(Math.random() * (columns - roomCol + 1))
 
     for (let k = startRow; k < startRow + roomRow; k++) {
       for (let j = startCol; j < startCol + roomCol; j++) {
-        let div = createDiv(['field', 'tile'], k, j)
-        map[k][j] = div
+        updateMapElem(k, j, objects.floor)
       }
     }
   }
 }
 
-function drawRoad() {
+function createRoad() {
   function Roadraw() {
-    let RoadQuantity = Math.floor(Math.random() * (6 - 3) + 3)
+    let RoadQuantity = random(3, 6)
     for (let i = 0; i < RoadQuantity; i++) {
-      let startRow = Math.floor(Math.random() * rows)
+      let startRow = random(0, rows - 1)
       for (let k = 0; k < columns; k++) {
-        let div = createDiv(['field', 'tile'], startRow, k)
-        map[startRow][k] = div
+        updateMapElem(startRow, k, objects.floor)
       }
     }
   }
   function RoadCol() {
-    let RoadQuantity = Math.floor(Math.random() * (6 - 3 + 1) + 3)
+    let RoadQuantity = random(3, 6)
     for (let i = 0; i < RoadQuantity; i++) {
-      let startCol = Math.floor(Math.random() * columns)
+      let startCol = random(0, columns - 1)
       for (let k = 0; k < rows; k++) {
-        let div = createDiv(['field', 'tile'], k, startCol)
-        map[k][startCol] = div
+        updateMapElem(k, startCol, objects.floor)
       }
     }
   }
@@ -85,11 +160,10 @@ function drawItems() {
     if (count > 0) {
       let x, y
       do {
-        y = Random(columns)
-        x = Random(rows)
-      } while (!isFieldTile(x, y))
-      console.log(map[x][y])
-      map[x][y].classList.add('tileSW')
+        x = random(0, rows - 1)
+        y = random(0, columns - 1)
+      } while (map[x][y].type === 'wall')
+      map[x][y].item = Object.assign({}, items.sword)
       count--
       drawTileSW(count)
     }
@@ -99,10 +173,10 @@ function drawItems() {
     if (count > 0) {
       let x, y
       do {
-        y = Random(columns)
-        x = Random(rows)
-      } while (!isFieldTile(x, y))
-      map[x][y].classList.add('tileHP')
+        x = random(0, rows - 1)
+        y = random(0, columns - 1)
+      } while (!(map[x][y].type === 'floor'))
+      map[x][y].item = Object.assign({}, items.HP)
       count--
       drawTileHP(count)
     }
@@ -116,59 +190,51 @@ function drawWarrior(count) {
   if (count > 0) {
     let x, y
     do {
-      y = Random(columns)
-      x = Random(rows)
-    } while (!isFieldTile(x, y))
-
-    let div = createDiv(['field', 'tile', 'tileE'], x, y)
-    const health = createDiv(['health'], 0, 0, 100)
-    div.appendChild(health)
-    map[x][y] = div
+      x = random(0, rows - 1)
+      y = random(0, columns - 1)
+    } while (!(map[x][y].type === 'floor'))
+    map[x][y].enemies = Object.assign({}, enemies.warriors)
+    map[x][y].enemies.x = x * tileSize
+    map[x][y].enemies.y = y * tileSize
     count--
-
     moveWarrior(x, y)
     drawWarrior(count)
   }
 }
 
 function moveWarrior(x, y) {
-  let attackPower = 25
   let timer
   timer = setInterval(function () {
-    if (!map[x][y].classList.contains('tileE')) {
-      return clearInterval(timer)
+    if (map[x][y].enemies.type !== 'enemies') {
+      clearInterval(timer)
+    } else {
+      let direction = Math.floor(Math.random() * directions.length)
+      let newX = x + directions[direction].dx
+      let newY = y + directions[direction].dy
+
+      if (isFloor(newX, newY)) {
+        map[newX][newY].enemies = Object.assign(map[x][y].enemies)
+        map[newX][newY].enemies.x = newX * tileSize
+        map[newX][newY].enemies.y = newY * tileSize
+        map[x][y].enemies = ''
+        updateMap(map[newX][newY], map[x][y])
+        x = newX
+        y = newY
+        attack(x, y)
+      }
     }
-    let randomIndex = Math.floor(Math.random() * directions.length)
-    let newX = x + directions[randomIndex].dx
-    let newY = y + directions[randomIndex].dy
-
-    if (isFieldTile(newX, newY)) {
-      let oldHealthWarrior = map[x][y].children[0].style.width
-      let div = createDiv(['field', 'tile', 'tileE'], newX, newY)
-      let health = createDiv(['health'], 0, 0)
-      health.style.width = oldHealthWarrior
-      div.appendChild(health)
-      map[newX][newY] = div
-
-      map[x][y].innerHTML = ''
-      map[x][y].classList.remove('tileE')
-
-      x = newX
-      y = newY
-      attack(x, y)
-    }
-  }, 500)
+  }, 400)
 }
 
 function drawPerson() {
-  while (!isFieldTile(x, y)) {
-    y = Random(columns)
-    x = Random(rows)
-  }
-  const div = createDiv(['field', 'tile', 'tileP'], x, y)
-  const health = createDiv(['health'], 0, 0, 100)
-  div.appendChild(health)
-  map[x][y] = div
+  do {
+    x = random(0, rows - 1)
+    y = random(0, columns - 1)
+  } while (!(map[x][y].type === 'floor'))
+
+  map[x][y].enemies = Object.assign({}, enemies.player)
+  map[x][y].enemies.x = x * tileSize
+  map[x][y].enemies.y = y * tileSize
 }
 
 document.addEventListener('keydown', function (event) {
@@ -190,121 +256,97 @@ document.addEventListener('keydown', function (event) {
 
   const action = keyActions[event.key]
   if (action) {
+    event.preventDefault()
     action(x, y)
   }
 })
 
 function attack(x, y) {
-  let attacking = map[x][y]
+  let attacking = map[x][y].enemies
   for (let direction of directions) {
     let nX = x + direction.dx
     let nY = y + direction.dy
-    // console.log(nY, nX, map[nX][nY])
     if (
       nX >= 0 &&
       nY >= 0 &&
       nX < rows &&
       nY < columns &&
-      map[nX][nY].children.length
+      map[nX][nY].enemies
     ) {
-      let enemy = map[nX][nY]
-      if (enemy.classList.value !== attacking.classList.value) {
-        // console.log(
-        //   'атакуемый',
-        //   enemy.classList.value,
-        //   'атакующий',
-        //   attacking.classList.value
-        // )
-        let previousHealth = parseFloat(enemy.children[0].style.width)
-        enemy.children[0].style.width = previousHealth - attackPower + '%'
-        if (previousHealth - attackPower <= 0) {
-          enemy.innerHTML = ''
-          enemy.classList.remove('tileE')
-          enemy.classList.remove('tileP')
+      let enemy = map[nX][nY].enemies
+      if (attacking.type !== enemy.type) {
+        enemy.health = enemy.health - attacking.attackPower
+        if (enemy.health <= 0) {
+          map[nX][nY].enemies = ''
         }
+        updateMap(map[nX][nY], map[x][y])
       }
     }
   }
 }
 
-function moveUp() {
-  if (isFieldTile(x - 1, y)) {
-    movePerson(x - 1, y)
+function moveUp(x, y) {
+  if (isFloor(x - 1, y)) {
+    movePerson(x - 1, y, x, y)
   }
 }
 
-function moveDown() {
-  if (isFieldTile(x + 1, y)) {
+function moveDown(x, y) {
+  if (isFloor(x + 1, y)) {
     movePerson(x + 1, y)
   }
 }
 
-function moveLeft() {
-  if (isFieldTile(x, y + 1)) {
+function moveLeft(x, y) {
+  if (isFloor(x, y + 1)) {
     movePerson(x, y + 1)
   }
 }
 
-function moveRight() {
-  if (isFieldTile(x, y - 1)) {
+function moveRight(x, y) {
+  if (isFloor(x, y - 1)) {
     movePerson(x, y - 1)
   }
 }
 
-// function getRandomposition() {
-//   let y = Random(columns)
-//   let x = Random(rows)
-//   while (!isFieldTile(x, y)) {
-//     y = Random(columns)
-//     x = Random(rows)
-//   }
-//   return x, y
-// }
-
-function Random(limit) {
-  return Math.floor(Math.random() * limit)
-}
-
-function isFieldTile(x, y) {
+function isFloor(x, y) {
   return (
     x >= 0 &&
     y >= 0 &&
     x < rows &&
     y < columns &&
-    !map[x][y].classList.contains('tileE') &&
-    !map[x][y].classList.contains('tileW') &&
-    !map[x][y].classList.contains('tileP')
-    // !map[x][y].classList.value !== 'field tile tileE'
+    map[x][y].type !== 'wall' &&
+    map[x][y].enemies.type !== 'enemies' &&
+    map[x][y].enemies.type !== 'player'
   )
 }
 
 function movePerson(newx, newy) {
-  const person = document.querySelector('.tileP')
-  let oldHealthPerson = parseFloat(person.children[0].style.width)
-  person.innerHTML = ''
-  person.classList.remove('tileP')
-  console.log(map[newx][newy], oldHealthPerson)
-  if (map[newx][newy].classList.contains('tileHP') && oldHealthPerson < 100) {
-    oldHealthPerson = oldHealthPerson + 25
-    map[newx][newy].classList.remove('tileHP')
+  if (map[newx][newy].item.type === 'HP' && map[x][y].enemies.health < 100) {
+    map[x][y].enemies.health = map[x][y].enemies.health + 25
+    map[newx][newy].item = ''
   }
-  // if (map[newx][newy].classList.contains('tileSW')) {
-  // let attackPower = attackPower * 2
-  //   map[newx][newy].classList.remove('tileSW')
-  // }
+  if (map[newx][newy].item.type === 'sword') {
+    map[x][y].enemies.attackPower = map[x][y].enemies.attackPower * 2
+    map[newx][newy].item = ''
+  }
+
+  let player = Object.assign(map[x][y].enemies)
+  map[x][y].enemies = ''
+
+  map[newx][newy].enemies = Object.assign(player)
+  map[newx][newy].enemies.x = newx * tileSize
+  map[newx][newy].enemies.y = newy * tileSize
+
+  updateMap(map[newx][newy], map[x][y])
   x = newx
   y = newy
-
-  const div = createDiv(['field', 'tile', 'tileP'], x, y)
-  const health = createDiv(['health'], 0, 0, oldHealthPerson)
-  div.appendChild(health)
-
-  map[x][y] = div
 }
 
-drawMap()
-drawRoom()
-drawPerson()
-drawRoad()
+createMap()
+createRoom()
+createRoad()
 drawItems()
 drawWarrior(10)
+drawPerson()
+drawMap()
