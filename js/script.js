@@ -1,4 +1,7 @@
 const field = document.querySelector('.field')
+const modal = document.querySelector('.modal')
+const btn = document.querySelector('button')
+btn.addEventListener('click', () => location.reload())
 
 const rows = 24
 const columns = 40
@@ -278,6 +281,9 @@ function attack(x, y) {
         enemy.health = enemy.health - attacking.attackPower
         if (enemy.health <= 0) {
           map[nX][nY].enemies = ''
+          if (enemy.type === 'player') {
+            modal.style = 'transform: translateX(0)'
+          }
         }
         updateMap(map[nX][nY], map[x][y])
       }
@@ -343,10 +349,13 @@ function movePerson(newx, newy) {
   y = newy
 }
 
-createMap()
-createRoom()
-createRoad()
-drawItems()
-drawWarrior(10)
-drawPerson()
-drawMap()
+function startGame() {
+  createMap()
+  createRoom()
+  createRoad()
+  drawItems()
+  drawWarrior(10)
+  drawPerson()
+  drawMap()
+}
+startGame()
