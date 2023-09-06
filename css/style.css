@@ -22,6 +22,18 @@ h3 {
   margin: 0px;
 }
 
+.modal__start {
+  width: 1000px;
+  height: 600px;
+  background-color: #683104;
+  position: absolute;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
 .modal {
   width: 1000px;
   height: 600px;
@@ -91,17 +103,3 @@ button {
   padding: 5px 20px;
   cursor: pointer;
 }
-
-/* .inventory-box {
-  border: 2px solid #d0d0d0;
-  float: left;
-}
-.inventory {
-  position: relative;
-  width: 800px;
-  height: 32px;
-}
-.cl {
-  clear: both;
-  display: block;
-} */

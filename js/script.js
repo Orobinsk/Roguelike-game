@@ -1,16 +1,17 @@
 const field = document.querySelector('.field')
 const modal = document.querySelector('.modal')
-const btn = document.querySelector('button')
+const btn = document.querySelector('.btn__restart')
+const modalStart = document.querySelector('.modal__start')
+const btnStart = document.querySelector('.btn__start')
 btn.addEventListener('click', () => location.reload())
 
 const rows = 24
 const columns = 40
 const tileSize = 25
 const roomQuantity = random(5, 10)
-
 let x, y
-
 let map
+
 const objects = {
   wall: { type: 'wall', class: 'tile tileW', x: 0, y: 0 },
   floor: {
@@ -358,4 +359,8 @@ function startGame() {
   drawPerson()
   drawMap()
 }
-startGame()
+
+btnStart.addEventListener('click', ()=>{
+  modalStart.style = 'transform: translateX(-120%)'
+  startGame()
+})
